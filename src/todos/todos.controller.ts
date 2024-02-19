@@ -10,13 +10,14 @@ import {
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { Todo as TodoModel } from '@prisma/client';
 
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todoService: TodoService) {}
 
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
+  create(@Body() createTodoDto: CreateTodoDto): Promise<TodoModel> {
     // Temporary
     const userId: number = 1;
 
@@ -27,7 +28,7 @@ export class TodosController {
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<TodoModel[]> {
     // Temporary
     const userId: number = 1;
 
@@ -42,7 +43,7 @@ export class TodosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<TodoModel | null> {
     // Temporary
     const userId: number = 1;
 
@@ -50,7 +51,10 @@ export class TodosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTodoDto: UpdateTodoDto,
+  ): Promise<TodoModel> {
     return this.todoService.update({
       where: { id: +id },
       data: updateTodoDto,
@@ -58,7 +62,7 @@ export class TodosController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<TodoModel> {
     return this.todoService.delete({ id: +id });
   }
 }
