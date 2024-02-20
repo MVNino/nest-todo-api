@@ -13,16 +13,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     UsersModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: jwtConstants.expiresIn },
     }),
   ],
-  providers: [
-    AuthService,
-    PrismaService,
-    JwtService,
-    // LocalStrategy,
-    JwtStrategy,
-  ],
+  providers: [AuthService, PrismaService, JwtService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })

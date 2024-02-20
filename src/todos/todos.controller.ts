@@ -17,11 +17,15 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Todo as TodoModel } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ApiBody, ApiResponse } from '@nestjs/swagger';
 
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
+  @ApiBody({ type: CreateTodoDto })
+  @ApiResponse({ status: 201, description: 'Created' })
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   create(
@@ -34,6 +38,8 @@ export class TodosController {
     });
   }
 
+  @ApiResponse({ status: 200, description: 'Success' })
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
   findAll(@Req() { user }): Promise<TodoModel[]> {
@@ -47,6 +53,8 @@ export class TodosController {
     });
   }
 
+  @ApiResponse({ status: 200, description: 'Success' })
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Req() { user },
@@ -62,6 +70,8 @@ export class TodosController {
     return todo;
   }
 
+  @ApiResponse({ status: 200, description: 'Success' })
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   update(
     @Req() { user },
@@ -74,6 +84,8 @@ export class TodosController {
     });
   }
 
+  @ApiResponse({ status: 200, description: 'Success' })
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Req() { user }, @Param('id') id: string): Promise<TodoModel> {
     return this.todosService.delete({ id: +id, userId: user.userId });
