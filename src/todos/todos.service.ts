@@ -3,7 +3,7 @@ import { Todo as TodoModel, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
-export class TodoService {
+export class TodosService {
   constructor(private prisma: PrismaService) {}
 
   async findOne(

@@ -3,38 +3,43 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Req,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Put,
+  HttpException,
 } from '@nestjs/common';
-import { TodoService } from './todo.service';
+import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Todo as TodoModel } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('todos')
 export class TodosController {
-  constructor(private readonly todoService: TodoService) {}
+  constructor(private readonly todosService: TodosService) {}
 
+  @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto): Promise<TodoModel> {
-    // Temporary
-    const userId: number = 1;
-
-    return this.todoService.create({
+  create(
+    @Req() { user },
+    @Body() createTodoDto: CreateTodoDto,
+  ): Promise<TodoModel> {
+    return this.todosService.create({
+      user: { connect: { id: user.userId } },
       ...createTodoDto,
-      user: { connect: { id: userId } },
     });
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get()
-  findAll(): Promise<TodoModel[]> {
-    // Temporary
-    const userId: number = 1;
-
-    return this.todoService.findAll({
+  findAll(@Req() { user }): Promise<TodoModel[]> {
+    return this.todosService.findAll({
       where: {
-        userId,
+        userId: user.userId,
       },
       orderBy: {
         createdAt: 'desc',
@@ -43,26 +48,34 @@ export class TodosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<TodoModel | null> {
-    // Temporary
-    const userId: number = 1;
+  async findOne(
+    @Req() { user },
+    @Param('id') id: string,
+  ): Promise<TodoModel | HttpException> {
+    const todo: TodoModel = await this.todosService.findOne({
+      id: +id,
+      userId: user.userId,
+    });
 
-    return this.todoService.findOne({ id: +id, userId });
+    if (!todo) throw new HttpException('Record not found.', 404);
+
+    return todo;
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
+    @Req() { user },
     @Param('id') id: string,
     @Body() updateTodoDto: UpdateTodoDto,
   ): Promise<TodoModel> {
-    return this.todoService.update({
-      where: { id: +id },
+    return this.todosService.update({
+      where: { id: +id, userId: user.userId },
       data: updateTodoDto,
     });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<TodoModel> {
-    return this.todoService.delete({ id: +id });
+  remove(@Req() { user }, @Param('id') id: string): Promise<TodoModel> {
+    return this.todosService.delete({ id: +id, userId: user.userId });
   }
 }

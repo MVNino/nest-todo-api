@@ -1,12 +1,13 @@
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class CreateTodoDto {
+export class SignInDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(45)
-  public title: string;
+  public email: string;
 
   @IsString()
-  @MaxLength(255)
-  public description: string;
+  @IsNotEmpty()
+  @MaxLength(45)
+  public password: string;
 }
